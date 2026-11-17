@@ -1,5 +1,6 @@
 # ---- 构建产物（二进制，不入库） ----
 /target
+/dist
 /android/build
 /android/dist
 /android/app/src/main/assets/ui.html
