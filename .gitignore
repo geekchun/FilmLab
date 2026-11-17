@@ -1,0 +1,29 @@
+# ---- 构建产物（二进制，不入库） ----
+/target
+/android/build
+/android/dist
+/android/app/src/main/assets/ui.html
+
+# ---- 签名与密钥 ----
+*.keystore
+*.jks
+
+# ---- 测试数据（翻拍样片） ----
+_DSC1566.JPG
+_DSC1616.JPG
+5163ad2dc48c2542a0c902965986fd38.jpg
+/generated-images
+
+# ---- 其它二进制/临时文件 ----
+*.apk
+*.aab
+*.idsig
+*.class
+*.dex
+*.o
+*.rmeta
+*.rlib
+*.pdb
+*.log
+*.tmp
+*.bak

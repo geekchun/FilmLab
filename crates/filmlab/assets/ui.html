@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0c0f">
+<title>FilmLab</title>
+<style>
+:root{
+  --bg:#0b0c0f;
+  --bg-soft:#101216;
+  --panel:#14161a;
+  --panel-2:#191c21;
+  --line:#252a31;
+  --line-soft:#1c2026;
+  --ink:#e9eaee;
+  --ink-2:#9aa1ac;
+  --ink-3:#5f6873;
+  --amber:#e6a33c;
+  --amber-soft:#f0c37e;
+  --cyan:#4fb6c4;
+  --red:#e06b5c;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --sans:"Microsoft YaHei UI","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:13px;overflow:hidden;user-select:none;
+  display:grid;grid-template-rows:58px 1fr 30px;
+}
+/* ---------- 顶栏 ---------- */
+header{
+  display:flex;align-items:center;gap:18px;padding:0 16px;
+  background:linear-gradient(180deg,#15171b,#0f1114);
+  border-bottom:1px solid var(--line);
+  -webkit-app-region:drag;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{
+  width:30px;height:22px;border-radius:4px;position:relative;
+  background:linear-gradient(135deg,#e6a33c,#b9722a 55%,#7d4a1c);
+  box-shadow:0 0 0 1px #f3c98a22,0 6px 14px -6px #e6a33c66;
+}
+.logo::before,.logo::after{
+  content:"";position:absolute;top:50%;width:4px;height:4px;border-radius:50%;
+  background:#0b0c0f;transform:translateY(-50%);
+}
+.logo::before{left:4px}
+.logo::after{right:4px}
+.brand h1{font-size:15px;letter-spacing:.16em;font-weight:600}
+.brand p{font-size:10px;color:var(--ink-3);letter-spacing:.08em;margin-top:1px}
+.doc{
+  flex:1;display:flex;align-items:center;gap:10px;min-width:0;
+  padding-left:14px;border-left:1px solid var(--line-soft);
+}
+.doc .name{
+  font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;max-width:340px;
+}
+.chip{
+  font-family:var(--mono);font-size:10.5px;color:var(--ink-3);
+  border:1px solid var(--line);border-radius:999px;padding:3px 9px;
+  white-space:nowrap;
+}
+.actions{display:flex;gap:8px}
+.btn{
+  font-family:var(--sans);font-size:12px;color:var(--ink-2);
+  background:#1a1d22;border:1px solid var(--line);border-radius:8px;
+  padding:8px 13px;cursor:pointer;transition:all .16s ease;white-space:nowrap;
+}
+.btn:hover{background:#20242b;color:var(--ink);border-color:#333a43}
+.btn:active{transform:translateY(1px)}
+.btn.primary{
+  background:linear-gradient(180deg,#e9a842,#cf8a2b);color:#20160a;
+  border-color:#f2c078;font-weight:600;
+  box-shadow:0 6px 16px -8px #e6a33c99,inset 0 1px 0 #ffdda6;
+}
+.btn.primary:hover{background:linear-gradient(180deg,#f0b455,#d9942f)}
+.btn.small{padding:6px 10px;font-size:11.5px;border-radius:7px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+/* ---------- 主体 ---------- */
+main{display:grid;grid-template-columns:322px 1fr;min-height:0}
+.sidebar{
+  border-right:1px solid var(--line);background:var(--bg-soft);
+  overflow-y:auto;padding:14px 12px 20px;display:flex;flex-direction:column;gap:12px;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#23272e;border-radius:4px}
+.card{
+  background:linear-gradient(180deg,var(--panel),#121418);
+  border:1px solid var(--line);border-radius:12px;padding:12px 13px 13px;
+  box-shadow:inset 0 1px 0 #ffffff08;
+}
+.card h2{
+  font-size:11.5px;letter-spacing:.14em;color:var(--ink);font-weight:600;
+  display:flex;align-items:baseline;gap:8px;margin-bottom:11px;
+}
+.card h2 span{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0}
+.row label{font-size:12.5px;color:var(--ink-2)}
+/* 开关 */
+.switch{
+  width:38px;height:20px;border-radius:999px;background:#22262d;border:1px solid #2f353d;
+  position:relative;cursor:pointer;transition:background .18s,border-color .18s;flex:none;
+}
+.switch .knob{
+  position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+  background:#6b7280;transition:all .18s ease;
+}
+.switch.on{background:linear-gradient(180deg,#e9a842,#cf8a2b);border-color:#f0c37e}
+.switch.on .knob{left:20px;background:#241708;box-shadow:0 0 8px #ffda9a88}
+/* 滑杆 */
+.field{padding:7px 0}
+.field .lab{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.field .lab span{font-size:12px;color:var(--ink-2)}
+.field .lab b{font-family:var(--mono);font-size:11px;color:var(--amber-soft);font-weight:500}
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:18px;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{
+  height:3px;border-radius:3px;background:linear-gradient(90deg,#3a4048,#20242a);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:13px;height:13px;border-radius:50%;margin-top:-5px;
+  background:radial-gradient(circle at 35% 30%,#fff6e2,#e6a33c 62%,#a8691f);
+  box-shadow:0 0 0 3px #e6a33c22,0 2px 6px #000a;border:none;
+}
+input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 0 4px #e6a33c33,0 2px 8px #000a}
+select{width:100%;padding:7px 9px;border-radius:8px;border:1px solid #ffffff1f;
+  background:#1c2026;color:#e9e2d4;font-size:12.5px;outline:none;cursor:pointer}
+select:focus{border-color:#e6a33c88}
+body.mobile select{padding:11px 10px;font-size:13.5px}
+/* 片基色块 */
+.swatch{display:flex;gap:7px;margin:8px 0 6px}
+.sw{flex:1;height:34px;border-radius:8px;border:1px solid #ffffff1a;position:relative;
+  display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;
+  font-family:var(--mono);font-size:9.5px;color:#fff;text-shadow:0 1px 3px #000b;
+}
+.kv{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:3px 0}
+.kv span{color:var(--ink-3)}
+.kv b{font-family:var(--mono);font-weight:500;color:var(--ink-2)}
+.meter{height:4px;border-radius:3px;background:#1e2228;overflow:hidden;margin:7px 0 4px}
+.meter > div{height:100%;width:0;border-radius:3px;transition:width .25s ease;
+  background:linear-gradient(90deg,#4fb6c4,#e6a33c)}
+/* 直方图 */
+.hist canvas{width:100%;height:96px;display:block;border-radius:8px;background:#0d0f12}
+.hist h2{margin-bottom:8px}
+.credit{font-size:10px;color:var(--ink-3);text-align:center;letter-spacing:.04em;padding:2px 0 8px}
+/* 几何 */
+.geo{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.geo .btn{width:100%;text-align:center;padding:7px 8px}
+.geo-hint{font-size:10.5px;color:var(--ink-3);line-height:1.7;margin-top:9px;display:none}
+.cropbox{
+  position:absolute;display:none;z-index:5;pointer-events:none;
+  border:1px solid var(--amber);background:#e6a33c10;
+  box-shadow:0 0 0 9999px #0000008c;
+}
+/* ---------- 画布 ---------- */
+.stage{position:relative;overflow:hidden;background:#08090b;min-width:0}
+.stage::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(#ffffff0a 1px,transparent 1px);
+  background-size:3px 3px;opacity:.5;
+}
+.stage-toolbar{
+  position:absolute;top:12px;left:12px;right:12px;z-index:5;
+  display:flex;justify-content:space-between;pointer-events:none;
+}
+.stage-toolbar > *{pointer-events:auto}
+.seg,.zoom{
+  display:flex;align-items:center;gap:2px;padding:3px;
+  background:#12151add;border:1px solid var(--line);border-radius:9px;
+  backdrop-filter:blur(8px);box-shadow:0 8px 24px -12px #000;
+}
+.seg button{
+  background:transparent;border:none;color:var(--ink-3);font-size:11.5px;
+  font-family:var(--sans);padding:6px 12px;border-radius:6px;cursor:pointer;transition:.15s;
+}
+.seg button.on{background:#262a31;color:var(--amber-soft)}
+.zoom button{
+  background:transparent;border:none;color:var(--ink-2);font-family:var(--mono);
+  font-size:12px;width:26px;height:24px;border-radius:6px;cursor:pointer;
+}
+.zoom button:hover{background:#22262d;color:var(--ink)}
+.zoom #zVal{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);width:44px;text-align:center}
+.canvas-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;cursor:default}
+.canvas-wrap.grab{cursor:grab}
+.canvas-wrap.drag{cursor:grabbing}
+.canvas-wrap.pick{cursor:crosshair}
+#imgbox{transform-origin:center center;will-change:transform;transition:transform .08s ease-out}
+#imgbox img{
+  display:block;max-width:none;image-rendering:auto;
+  box-shadow:0 24px 70px -20px #000,0 0 0 1px #ffffff0d;
+  border-radius:2px;
+}
+.hint{
+  position:absolute;text-align:center;color:var(--ink-3);line-height:1.9;
+  transition:opacity .2s;pointer-events:none;
+}
+.hint .ring{
+  width:78px;height:78px;margin:0 auto 18px;border-radius:50%;
+  border:1px dashed #3a4149;display:flex;align-items:center;justify-content:center;
+  color:var(--amber);font-size:26px;
+}
+.hint b{display:block;color:var(--ink-2);font-size:13px;margin-bottom:4px}
+.hint span{font-size:11.5px}
+.pickbar{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:6;
+  background:#12151aee;border:1px solid var(--amber);border-radius:9px;
+  padding:7px 14px;font-size:11.5px;color:var(--amber-soft);display:none;
+  box-shadow:0 10px 30px -14px #000;
+}
+/* ---------- 状态栏 ---------- */
+footer{
+  display:flex;align-items:center;gap:16px;padding:0 14px;
+  border-top:1px solid var(--line);background:#0e1013;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink-3);
+}
+footer .dot{width:6px;height:6px;border-radius:50%;background:#3c434c}
+footer .dot.ok{background:#4fb6c4;box-shadow:0 0 8px #4fb6c488}
+footer .dot.busy{background:var(--amber);box-shadow:0 0 8px #e6a33c88}
+footer .sep{width:1px;height:12px;background:var(--line)}
+footer .grow{flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ---------- 处理进度 ---------- */
+.busy{
+  position:fixed;inset:0;z-index:60;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(8,9,11,.62);backdrop-filter:blur(2px);
+}
+.busy.show{display:flex}
+.busy-card{
+  width:min(430px,74vw);padding:18px 22px 16px;border-radius:12px;
+  background:linear-gradient(180deg,#181b20,#121418);
+  border:1px solid var(--line);
+  box-shadow:0 26px 64px -22px #000,0 0 0 1px #ffffff0a;
+}
+.busy-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.busy-head b{font-size:13px;font-weight:600;letter-spacing:.04em}
+.busy-head span{font-family:var(--mono);font-size:12px;color:var(--amber)}
+.busy-track{
+  height:6px;margin:13px 0 10px;border-radius:99px;overflow:hidden;position:relative;
+  background:#0b0d10;box-shadow:inset 0 0 0 1px #ffffff0f;
+}
+.busy-bar{
+  height:100%;width:0%;border-radius:99px;position:relative;overflow:hidden;
+  background:linear-gradient(90deg,#b9722a,#e6a33c 45%,#f0c37e);
+  transition:width .3s cubic-bezier(.2,.7,.2,1);
+}
+.busy-bar::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,#ffffff00,#ffffff3a,#ffffff00);
+  animation:busySheen 1.2s linear infinite;
+}
+@keyframes busySheen{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.busy-msg{font-size:11.5px;color:var(--ink-2);letter-spacing:.02em;min-height:16px}
+/* ---------- 移动端布局（body.mobile，运行时按平台挂上） ---------- */
+.sheet-grip,.sheet-mask,.fab,#btnShoot{display:none}
+body.mobile{display:flex;flex-direction:column;font-size:14px}
+body.mobile header{min-height:52px;padding:6px 10px;gap:8px;z-index:20}
+body.mobile .brand p{display:none}
+body.mobile .brand h1{font-size:13px;letter-spacing:.1em}
+body.mobile .logo{width:24px;height:17px}
+body.mobile .doc{display:none}
+body.mobile .actions{margin-left:auto;gap:6px}
+body.mobile .actions .btn{padding:9px 12px;font-size:12.5px;border-radius:9px}
+body.mobile .actions #btnDemo{display:none}
+body.mobile #btnShoot{display:inline-block}
+body.mobile main{display:block;position:relative;flex:1;min-height:0;overflow:hidden}
+body.mobile .stage{position:absolute;inset:0}
+body.mobile .stage-toolbar{top:8px;left:8px;right:8px}
+body.mobile .zoom #zVal{display:none}
+body.mobile .zoom button{width:32px;height:30px;font-size:14px}
+body.mobile .seg button{padding:8px 14px;font-size:12.5px}
+/* 参数面板 → 底部抽屉 */
+body.mobile .sidebar{
+  position:fixed;left:0;right:0;bottom:0;z-index:41;
+  max-height:74vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  border:1px solid var(--line);border-bottom:none;border-radius:16px 16px 0 0;
+  background:linear-gradient(180deg,#171a1f,#101216);
+  padding:4px 12px calc(22px + env(safe-area-inset-bottom,0px));
+  transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1);
+  box-shadow:0 -18px 48px -18px #000;
+}
+body.mobile.sheet-open .sidebar{transform:translateY(0)}
+body.mobile .sheet-grip{
+  display:flex;align-items:center;justify-content:center;height:28px;flex:none;cursor:pointer;
+}
+body.mobile .sheet-grip span{width:44px;height:4px;border-radius:99px;background:#39414b}
+body.mobile.sheet-open .sheet-mask{display:block;position:fixed;inset:0;z-index:40;background:#05060acc}
+body.mobile .fab{
+  display:flex;align-items:center;justify-content:center;
+  position:absolute;right:14px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:9;
+  width:54px;height:54px;border-radius:50%;border:1px solid #f2c078;
+  background:linear-gradient(180deg,#e9a842,#cf8a2b);color:#20160a;
+  font-family:var(--sans);font-size:12px;font-weight:600;
+  box-shadow:0 10px 26px -10px #e6a33cbb;cursor:pointer;
+}
+body.mobile.sheet-open .fab{opacity:0;pointer-events:none;transition:opacity .18s}
+body.mobile footer{flex:none;height:38px;gap:10px;padding:0 10px;font-size:10px}
+body.mobile footer .sep{display:none}
+body.mobile footer #statPx,body.mobile footer #statBase{display:none}
+body.mobile footer .grow{text-align:left}
+body.mobile .hint .ring{width:64px;height:64px;font-size:22px}
+body.mobile .hint b{font-size:13.5px}
+body.mobile .card{padding:12px 14px 14px}
+body.mobile .row{padding:10px 0}
+body.mobile .field{padding:11px 0}
+body.mobile input[type=range]{height:32px}
+body.mobile input[type=range]::-webkit-slider-runnable-track{height:5px}
+body.mobile input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px}
+body.mobile .geo .btn{padding:12px 8px;font-size:12.5px}
+body.mobile .switch{width:46px;height:26px}
+body.mobile .switch .knob{width:20px;height:20px}
+body.mobile .switch.on .knob{left:24px}
+body.mobile .pickbar{font-size:12px;padding:9px 14px}
+body.mobile .busy-card{width:82vw}
+body.mobile .hist canvas{height:76px}
+body.mobile .canvas-wrap{touch-action:none}
+body.mobile .pickbar{
+  bottom:calc(86px + env(safe-area-inset-bottom,0px));
+  max-width:calc(100vw - 28px);flex-wrap:wrap;justify-content:center;gap:8px;
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="logo"></span>
+    <div><h1>FilmLab</h1><p>负片 · 密度域反演</p></div>
+  </div>
+  <div class="doc">
+    <span class="name" id="docName">未载入图像</span>
+    <span class="chip" id="docSize">—</span>
+  </div>
+  <div class="actions">
+    <button class="btn ghost" id="btnShoot">拍摄</button>
+    <button class="btn ghost" id="btnOpen">打开负片</button>
+    <button class="btn ghost" id="btnDemo">演示样本</button>
+    <button class="btn primary" id="btnExport" disabled>导出 16-bit TIFF</button>
+  </div>
+</header>
+
+<main>
+  <aside class="sidebar" id="sheet">
+    <div class="sheet-grip" id="sheetGrip"><span></span></div>
+    <section class="card">
+      <h2>几何 <span>GEOMETRY</span></h2>
+      <div class="geo">
+        <button class="btn small" id="btnRotL">⟲ 左旋</button>
+        <button class="btn small" id="btnRotR">⟳ 右旋</button>
+        <button class="btn small" id="btnRot180">旋转 180°</button>
+        <button class="btn small" id="btnResetGeo">重置几何</button>
+      </div>
+      <button class="btn small" id="btnCrop" style="width:100%;margin-top:8px">框定画面区域</button>
+      <button class="btn small" id="btnRestoreCrop" style="display:none;width:100%;margin-top:6px">重新框定</button>
+      <p class="geo-hint" id="geoHint">拖出矩形框住有效画面（片基/片框留在框外），再点下方「应用」</p>
+    </section>
+
+    <section class="card">
+      <h2>基准 <span>BASE</span></h2>
+      <div class="swatch" id="swatch">
+        <div class="sw" style="background:#3a2a18">R —</div>
+        <div class="sw" style="background:#241a10">G —</div>
+        <div class="sw" style="background:#170f09">B —</div>
+      </div>
+      <div class="row" style="margin-top:6px"><label>逐段中性校正</label><div class="switch on" id="swFit"><span class="knob"></span></div></div>
+      <div class="meter"><div id="confBar"></div></div>
+      <div class="kv"><span>置信度</span><b id="confVal">—</b></div>
+      <div class="kv"><span>中性样本</span><b id="sampVal">—</b></div>
+    </section>
+
+    <section class="card">
+      <h2>印相 <span>PRINT</span></h2>
+      <div class="field">
+        <div class="lab"><span>风格</span><b id="vLook">自然</b></div>
+        <select id="look">
+          <option value="natural">自然</option>
+          <option value="nlp">NLP 风格</option>
+          <option value="vivid">鲜明</option>
+          <option value="soft">柔和</option>
+          <option value="mono">黑白</option>
+        </select>
+      </div>
+      <div class="row"><label>自动色调</label><div class="switch on" id="swAutoTone"><span class="knob"></span></div></div>
+      <div class="row"><label>自动中调</label><div class="switch on" id="swAutoExp"><span class="knob"></span></div></div>
+      <div class="field">
+        <div class="lab"><span>曝光</span><b id="vExpo">0.00</b></div>
+        <input type="range" id="expo" min="-2" max="2" step="0.01" value="0">
+      </div>
+      <div class="field">
+        <div class="lab"><span>反差</span><b id="vGrade">1.00</b></div>
+        <input type="range" id="grade" min="0.3" max="2.2" step="0.01" value="1">
+      </div>
+      <!-- 片边：比片基透多少算"没有胶片"（白纸/齿孔/灯箱）的门槛倍率。
+           1.10 是实测默认；调低片边更白、齿孔外扩，调高齿孔可能整块消失。 -->
+      <div class="field">
+        <div class="lab"><span>片边</span><b id="vFrame">1.10</b></div>
+        <input type="range" id="frk" min="0.8" max="2.2" step="0.01" value="1.1">
+      </div>
+      <div class="field">
+        <div class="lab"><span>青 / 品红 / 黄</span><b id="vCmy">0 / 0 / 0</b></div>
+        <input type="range" id="cm" min="-0.3" max="0.3" step="0.005" value="0">
+        <input type="range" id="mm" min="-0.3" max="0.3" step="0.005" value="0">
+        <input type="range" id="ym" min="-0.3" max="0.3" step="0.005" value="0">
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>显示 <span>DISPLAY</span></h2>
+      <div class="field">
+        <div class="lab"><span>饱和度</span><b id="vSat">0.00</b></div>
+        <input type="range" id="sat" min="-1" max="1" step="0.01" value="0">
+      </div>
+      <div class="field">
+        <div class="lab"><span>伽马</span><b id="vGam">2.20</b></div>
+        <input type="range" id="gam" min="1.5" max="3" step="0.01" value="2.2">
+      </div>
+    </section>
+
+    <section class="card hist">
+      <h2>直方图 <span>LUMA</span></h2>
+      <canvas id="hist" width="600" height="192"></canvas>
+    </section>
+    <p class="credit" id="credit">输入解码：—</p>
+  </aside>
+
+  <section class="stage">
+    <div class="stage-toolbar">
+      <div class="seg" id="segView">
+        <button data-view="positive" class="on">正片</button>
+        <button data-view="negative">负片</button>
+      </div>
+      <div class="zoom">
+        <button id="zOut">−</button><span id="zVal">适应</span><button id="zIn">+</button><button id="zFit">适应</button>
+      </div>
+    </div>
+    <div class="canvas-wrap grab" id="wrap">
+      <div class="hint" id="hint">
+        <div class="ring">＋</div>
+        <b>拖入负片，或点右下角「演示样本」</b>
+        <span>支持 TIFF / PNG / JPEG · 线性或 sRGB 编码</span>
+      </div>
+      <div id="imgbox" style="display:none"><img id="view" draggable="false"></div>
+      <div class="cropbox" id="cropBox"></div>
+    </div>
+    <div class="pickbar" id="cropbar" style="display:none;align-items:center;gap:12px">
+      <span>框出有效画面（片基/片框留在框外）</span>
+      <button class="btn small" id="cropApply" style="display:none">应用</button>
+      <button class="btn small" id="cropCancel">取消</button>
+    </div>
+    <button class="fab" id="fabTune" aria-label="调节参数">调节</button>
+  </section>
+</main>
+
+<div class="sheet-mask" id="sheetMask"></div>
+
+<div class="busy" id="busy">
+  <div class="busy-card">
+    <div class="busy-head">
+      <b id="busyTitle">正在处理…</b>
+      <span id="busyPct">0%</span>
+    </div>
+    <div class="busy-track"><div class="busy-bar" id="busyBar"></div></div>
+    <p class="busy-msg" id="busyMsg">准备中…</p>
+  </div>
+</div>
+
+<footer>
+  <span class="dot" id="dot"></span>
+  <span id="statText">就绪</span>
+  <span class="sep"></span>
+  <span id="statPx">—</span>
+  <span class="sep"></span>
+  <span id="statBase">基准 —</span>
+  <span class="sep"></span>
+  <span id="statMs">—</span>
+  <span class="grow" id="statMsg"></span>
+</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let seq = 0, timer = 0, inFlight = 0;
+
+/* ---------------- 平台 ---------------- */
+// 安卓壳会注入 window.fmnative；桌面 wry 没有。
+// 桌面把窗口拖得很窄时也切移动布局，免得两栏硬挤在 600px 里。
+const isAndroid = !!window.fmnative;
+const isMobile = isAndroid || window.innerWidth < 780;
+if (isMobile) document.body.classList.add('mobile');
+
+const state = {
+  params: {
+    fitGain: true, autoExposure: true,
+    exposure: 0, grade: 1, cmy: [0, 0, 0], wb: [1, 1, 1], sat: 0, gamma: 2.2, look: 'natural', autoTone: true,
+  },
+  hasImage: false, view: 'positive',
+  zoom: 1, tx: 0, ty: 0, fitMode: true,
+  needCrop: false, positive: '', negative: '', stats: null,
+  iw: 1, ih: 1,
+};
+
+/* ---------------- 处理进度 ---------------- */
+/* 打开大图/导出是"一条消息进去、一条消息出来"，中间可能一两秒没有任何反馈。
+   遮罩里的百分比与阶段文案由后端 progress 消息驱动；只进不退，避免来回跳。 */
+let busyOn = false, busyPct = 4;
+
+const BUSY_CMDS = new Set([
+  'demo', 'openPath', 'openData', 'rotate', 'crop', 'restoreCrop', 'resetGeom',
+  'reset', 'export',
+]);
+
+function busyTitleFor(cmd, extra) {
+  const file = extra && extra.path ? String(extra.path).split(/[\\/]/).pop() : '';
+  if (cmd === 'openPath') return file ? '正在打开 ' + file : '正在打开图像';
+  if (cmd === 'openData') return '正在读取拖入的图像';
+  if (cmd === 'demo') return '正在生成演示负片';
+  if (cmd === 'export') return '正在导出全幅 TIFF';
+  if (cmd === 'rotate' || cmd === 'crop' || cmd === 'resetGeom') return '正在应用几何变换';
+  return '正在处理…';
+}
+
+function showBusy(title) {
+  busyOn = true;
+  busyPct = 4;
+  $('busyTitle').textContent = title || '正在处理…';
+  $('busyMsg').textContent = '准备中…';
+  $('busyPct').textContent = '0%';
+  $('busyBar').style.width = '4%';
+  $('busy').classList.add('show');
+}
+
+function updateBusy(pct, msg) {
+  if (!busyOn) return;
+  if (typeof pct === 'number' && isFinite(pct)) {
+    busyPct = Math.max(busyPct, Math.min(100, pct));
+    $('busyBar').style.width = busyPct + '%';
+    $('busyPct').textContent = Math.round(busyPct) + '%';
+  }
+  if (msg) $('busyMsg').textContent = msg;
+}
+
+function hideBusy() {
+  if (!busyOn) return;
+  busyOn = false;
+  $('busyBar').style.width = '100%';
+  $('busyPct').textContent = '100%';
+  setTimeout(() => {
+    if (busyOn) return; // 期间又开始了新一轮，别把它关掉
+    $('busy').classList.remove('show');
+    $('busyBar').style.width = '0%';
+    $('busyPct').textContent = '0%';
+  }, 200);
+}
+
+/* ---------------- IPC ---------------- */
+/* 后端不回消息时遮罩会永远糊在屏幕上，12 秒没动静就自己收场，别把 UI 锁死。 */
+let watchdog = 0;
+function armWatchdog() {
+  clearTimeout(watchdog);
+  watchdog = setTimeout(() => {
+    if (!busyOn) return;
+    hideBusy();
+    setStatus('err', '处理超时，重试一次试试');
+  }, 12000);
+}
+
+function send(cmd, extra) {
+  const id = ++seq;
+  inFlight = id;
+  const msg = JSON.stringify(Object.assign({ id, cmd }, extra || {}));
+  // 桌面走 wry 的 ipc；安卓由 Java 的 JavascriptInterface 接管。
+  // 两边结果都以 window.__fm(...) 回推，下面的逻辑完全共用。
+  if (window.fmnative) window.fmnative.send(msg);
+  else window.ipc.postMessage(msg);
+  setStatus('busy', '计算中…');
+  if (BUSY_CMDS.has(cmd)) showBusy(busyTitleFor(cmd, extra));
+  armWatchdog();
+}
+
+window.__fm = (m) => {
+  clearTimeout(watchdog);
+  if (m.type === 'begin') {
+    // 拖放等"不经过 send()"的路径由后端显式开场
+    showBusy(m.title || '正在处理…');
+    return;
+  }
+  if (m.type === 'progress') {
+    // 启动时的自动载入不走 send()，靠这里补上遮罩
+    if (!busyOn && !state.hasImage) showBusy('正在载入图像');
+    updateBusy(m.pct, m.msg);
+    return;
+  }
+  // 其余消息都表示"这一轮结束了"（含 error）
+  hideBusy();
+  if (m.type === 'error') {
+    setStatus('err', m.error || '出错了');
+    return;
+  }
+  if (m.type === 'loaded') {
+    $('docName').textContent = m.name;
+    adopt(m);
+    // 打开新图绝不自动处理：只停在负片原图上，等用户框出有效画面
+    if (m.needCrop) {
+      enterCrop();
+      setStatus('ok', '请框出有效画面（片基/片框留在框外），应用后整幅出片');
+    }
+    return;
+  }
+  if (m.type === 'geom') {
+    adopt(m);
+    $('btnRestoreCrop').style.display = m.cropped ? 'inline-block' : 'none';
+    if (m.needCrop) {
+      enterCrop();
+      setStatus('ok', '请重新框出有效画面（片基/片框留在框外）');
+      return;
+    }
+    setStatus('ok', '已框定有效区域：整幅出片，校色只按区域内统计');
+    return;
+  }
+  if (m.type === 'render') {
+    if (m.needCrop) {
+      setStatus('err', '请先框定有效画面');
+      return;
+    }
+    showImage(m.jpeg);
+    if (m.params) syncControls(m.params);
+    setStats(m.stats, m.ms);
+    return;
+  }
+  if (m.type === 'exported') {
+    setStatus('ok', '已导出 ' + m.path);
+    $('statMsg').textContent = m.path;
+    return;
+  }
+};
+
+/* 统一吸纳一次"完整结果"（打开 / 旋转 / 裁剪 / 重置几何都走这里） */
+function adopt(m) {
+  state.hasImage = true;
+  state.negative = m.neg;
+  state.iw = m.w; state.ih = m.h;
+  state.positive = m.jpeg;
+  state.fitMode = true;
+  $('hint').style.display = 'none';
+  $('imgbox').style.display = 'block';
+  $('docSize').textContent = m.fullW + ' × ' + m.fullH;
+  $('btnExport').disabled = !!m.needCrop;
+  $('credit').textContent = '输入解码：' + (m.inputLin || '—');
+  if (m.params) syncControls(m.params);
+  // 还没框定有效画面时只有负片原图可看
+  state.needCrop = !!m.needCrop;
+  state.view = m.needCrop
+    ? 'negative'
+    : ((m.stats && m.stats.looksPositive) ? 'negative' : 'positive');
+  applyView();
+  fitView();
+  setStats(m.stats, m.ms);
+}
+
+/* ---------------- 控件 ---------------- */
+function syncControls(p) {
+  state.params = Object.assign({}, p);
+  setSwitch('swFit', !!p.fitGain);
+  setSwitch('swAutoTone', p.autoTone !== false);
+  setSwitch('swAutoExp', !!p.autoExposure);
+  // 曝光滑杆永远是用户自己的偏移量：自动模式只是给它一个基线，不再把它清零
+  $('expo').value = p.exposure;
+  $('vExpo').textContent = (+p.exposure).toFixed(2);
+  $('grade').value = p.grade;
+  $('vGrade').textContent = (+p.grade).toFixed(2);
+  $('cm').value = p.cmy[0]; $('mm').value = p.cmy[1]; $('ym').value = p.cmy[2];
+  $('vCmy').textContent = p.cmy.map((v) => v.toFixed(2)).join(' / ');
+  $('sat').value = p.sat; $('vSat').textContent = (+p.sat).toFixed(2);
+  $('gam').value = p.gamma; $('vGam').textContent = (+p.gamma).toFixed(2);
+  const frk = p.frameK ?? 1.1;
+  $('frk').value = frk; $('vFrame').textContent = (+frk).toFixed(2);
+  if (p.look) $('look').value = p.look;
+  $('vLook').textContent = LOOK_LABEL[$('look').value] || '自然';
+}
+
+function setSwitch(id, on) { $(id).classList.toggle('on', !!on); }
+function switchOn(id) { return $(id).classList.contains('on'); }
+
+function collect() {
+  const p = state.params;
+  return {
+    // 片基始终自动：界面上没有手动框选片基的入口，两个字段固定送默认值，
+    // 免得以后误以为"参数没接上"。要手调时改这里，并在面板加对应控件。
+    autoBase: true,
+    base: null,
+    fitGain: switchOn('swFit'),
+    autoTone: switchOn('swAutoTone'),
+    autoExposure: switchOn('swAutoExp'),
+    exposure: +$('expo').value,
+    grade: +$('grade').value,
+    cmy: [+$('cm').value, +$('mm').value, +$('ym').value],
+    wb: p.wb || [1, 1, 1],
+    sat: +$('sat').value,
+    gamma: +$('gam').value,
+    frameK: +$('frk').value,
+    look: $('look').value,
+  };
+}
+
+function schedule() {
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    if (state.needCrop) setStatus('ok', '请先框定有效画面，处理才会开始');
+    else if (state.hasImage) send('render', { params: collect() });
+    else setStatus('ok', '就绪');
+  }, 110);
+}
+
+$('swFit').onclick = () => { $('swFit').classList.toggle('on'); schedule(); };
+$('swAutoTone').onclick = () => { $('swAutoTone').classList.toggle('on'); schedule(); };
+$('swAutoExp').onclick = () => { $('swAutoExp').classList.toggle('on'); schedule(); };
+
+const labels = {
+  expo: (v) => 'vExpo', grade: (v) => 'vGrade', sat: (v) => 'vSat', gam: (v) => 'vGam',
+  frk: () => 'vFrame',
+};
+['expo', 'grade', 'sat', 'gam', 'frk'].forEach((id) => {
+  $(id).oninput = () => {
+    const v = +$(id).value;
+    $(labels[id](v)).textContent = id === 'gam' ? v.toFixed(2) : v.toFixed(2);
+    schedule();
+  };
+});
+['cm', 'mm', 'ym'].forEach((id) => {
+  $(id).oninput = () => {
+    $('vCmy').textContent = [+$('cm').value, +$('mm').value, +$('ym').value]
+      .map((v) => v.toFixed(2)).join(' / ');
+    schedule();
+  };
+});
+// 风格：换一组基线（反差/饱和度/天空提纯/色矩阵），滑杆仍叠在基线上
+const LOOK_LABEL = { natural: '自然', nlp: 'NLP 风格', vivid: '鲜明', soft: '柔和', mono: '黑白' };
+$('look').onchange = () => {
+  $('vLook').textContent = LOOK_LABEL[$('look').value] || '自然';
+  schedule();
+};
+
+/* ---------------- 手机抽屉与文案 ---------------- */
+// 参数面板在手机上收到屏幕底部，右下角「调节」拉起，点遮罩或抓手收起。
+function openSheet() { document.body.classList.add('sheet-open'); }
+function closeSheet() { document.body.classList.remove('sheet-open'); }
+$('fabTune').onclick = openSheet;
+$('sheetMask').onclick = closeSheet;
+$('sheetGrip').onclick = closeSheet;
+
+// 几何/取片基这类要在画面上操作的，点完就收起抽屉，好让用户马上看到结果
+$('sheet').addEventListener('click', (e) => {
+  if (!isMobile) return;
+  if (e.target.closest('#btnRotL,#btnRotR,#btnRot180,#btnResetGeo,#btnCrop,#btnRestoreCrop')) {
+    closeSheet();
+  }
+});
+
+// 遮罩是最后一道保险：万一卡住，点卡片外面就能收起来，不至于把整个界面锁死
+$('busy').addEventListener('click', (e) => {
+  if (!e.target.closest('.busy-card')) hideBusy();
+});
+
+if (isAndroid) {
+  // 安卓导出的是相册里的 JPEG，不是桌面那套 16-bit TIFF。
+  $('btnOpen').textContent = '相册';
+  $('btnExport').textContent = '导出';
+  $('hint').querySelector('b').textContent = '「相册」选一张负片，或「拍摄」现拍一张';
+  $('hint').querySelector('span').textContent = '按长边缩到 2600 px 再进算法，省内存';
+  $('btnShoot').onclick = () => {
+    if (window.fmnative && window.fmnative.shoot) window.fmnative.shoot();
+  };
+}
+
+/* ---------------- 打开文件 ---------------- */
+$('btnDemo').onclick = () => send('demo');
+
+$('btnOpen').onclick = () => {
+  // 安卓的选图在 Java 侧完成：先按长边缩放再进算法，
+  // 24MP 原图经 data URL 穿过 WebView 会直接把手机撑爆。
+  if (window.fmnative) { window.fmnative.pick(); return; }
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'image/*,.tif,.tiff,.jpg,.jpeg,.png';
+  inp.onchange = () => {
+    const f = inp.files && inp.files[0];
+    if (!f) return;
+    if (f.size > 48 * 1024 * 1024) {
+      setStatus('err', '文件超过 48 MB，请直接把文件拖入窗口');
+      return;
+    }
+    const fr = new FileReader();
+    fr.onload = () => send('openData', { name: f.name, data: fr.result });
+    fr.readAsDataURL(f);
+  };
+  inp.click();
+};
+
+$('btnExport').onclick = () => send('export');
+
+/* ---------------- 几何：旋转 / 框定有效区域 ---------------- */
+$('btnRotL').onclick = () => { if (state.hasImage) send('rotate', { dir: 'ccw' }); };
+$('btnRotR').onclick = () => { if (state.hasImage) send('rotate', { dir: 'cw' }); };
+$('btnRot180').onclick = () => { if (state.hasImage) send('rotate', { dir: '180' }); };
+$('btnResetGeo').onclick = () => { if (state.hasImage) send('resetGeom'); };
+
+let cropMode = false, cropSel = null;
+
+function clearCrop() {
+  cropSel = null;
+  $('cropBox').style.display = 'none';
+  $('cropApply').style.display = 'none';
+}
+
+function enterCrop() {
+  if (!state.hasImage) return;
+  exitCrop();
+  cropMode = true;
+  $('wrap').classList.add('pick');
+  $('cropbar').style.display = 'flex';
+  $('geoHint').style.display = 'block';
+  $('btnCrop').classList.add('primary');
+  clearCrop();
+}
+
+function exitCrop() {
+  cropMode = false;
+  $('cropbar').style.display = 'none';
+  $('geoHint').style.display = 'none';
+  $('btnCrop').classList.remove('primary');
+  $('wrap').classList.remove('pick');
+  clearCrop();
+}
+
+$('btnCrop').onclick = () => (cropMode ? exitCrop() : enterCrop());
+$('cropCancel').onclick = () => exitCrop();
+// 重新框定：本地直接进框选，重画一次即可覆盖原有区域
+$('btnRestoreCrop').onclick = () => { if (state.hasImage) enterCrop(); };
+
+$('cropApply').onclick = () => {
+  const sel = cropSel;
+  const wr = $('wrap').getBoundingClientRect();
+  const ir = $('view').getBoundingClientRect();
+  if (sel && ir.width > 0 && ir.height > 0) {
+    const left = Math.min(sel.x0, sel.x1), top = Math.min(sel.y0, sel.y1);
+    // 画布坐标 → 图像归一化坐标（图像可能被缩放、平移过）
+    const nx = (left - (ir.left - wr.left)) / ir.width;
+    const ny = (top - (ir.top - wr.top)) / ir.height;
+    const nw = Math.abs(sel.x1 - sel.x0) / ir.width;
+    const nh = Math.abs(sel.y1 - sel.y0) / ir.height;
+    const cx = Math.max(0, Math.min(1, nx));
+    const cy = Math.max(0, Math.min(1, ny));
+    const cw = Math.max(0, Math.min(1 - cx, nw));
+    const ch = Math.max(0, Math.min(1 - cy, nh));
+    exitCrop();
+    if (cw > 0.02 && ch > 0.02) send('crop', { x: cx, y: cy, w: cw, h: ch });
+    return;
+  }
+  exitCrop();
+};
+
+/* ---------------- 视图与缩放 ---------------- */
+function showImage(url) {
+  if (!url) return;
+  state.positive = url;             // 滑杆渲染时也要更新，方便切回"正片"看到最新结果
+  if (state.view === 'positive') {
+    $('view').src = url;
+    drawHist(url);
+  }
+}
+
+function applyView() {
+  const url = state.view === 'positive' ? state.positive : state.negative;
+  if (url) $('view').src = url;
+  if (state.view === 'positive' && state.positive) drawHist(state.positive);
+  $('segView').querySelectorAll('button').forEach((b) => {
+    b.classList.toggle('on', b.dataset.view === state.view);
+  });
+}
+$('segView').onclick = (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  // 还没框定有效画面时没有正片可看
+  if (state.needCrop && b.dataset.view === 'positive') {
+    setStatus('err', '请先框定有效画面');
+    return;
+  }
+  state.view = b.dataset.view;
+  applyView();
+};
+
+function fitView() {
+  const wrap = $('wrap');
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  const k = Math.min(W / state.iw, H / state.ih) * 0.9;
+  state.zoom = Math.max(0.05, k);
+  state.tx = 0; state.ty = 0;
+  state.fitMode = true;
+  applyTransform();
+}
+function applyTransform() {
+  $('imgbox').style.transform =
+    'translate(' + state.tx + 'px,' + state.ty + 'px) scale(' + state.zoom + ')';
+  $('zVal').textContent = state.fitMode ? '适应' : Math.round(state.zoom * 100) + '%';
+  $('view').style.imageRendering = state.zoom > 3 ? 'pixelated' : 'auto';
+}
+
+$('zIn').onclick = () => { state.fitMode = false;
+  state.zoom = Math.min(8, state.zoom * 1.25); applyTransform(); };
+$('zOut').onclick = () => { state.fitMode = false;
+  state.zoom = Math.max(0.1, state.zoom / 1.25); applyTransform(); };
+$('zFit').onclick = () => fitView();
+
+const wrap = $('wrap');
+wrap.addEventListener('wheel', (e) => {
+  if (!state.hasImage) return;
+  e.preventDefault();
+  const r = wrap.getBoundingClientRect();
+  const cx = e.clientX - r.left - r.width / 2;
+  const cy = e.clientY - r.top - r.height / 2;
+  const k2 = Math.min(8, Math.max(0.1, state.zoom * Math.exp(-e.deltaY * 0.0016)));
+  const ratio = k2 / state.zoom;
+  state.tx = cx - (cx - state.tx) * ratio;
+  state.ty = cy - (cy - state.ty) * ratio;
+  state.zoom = k2;
+  state.fitMode = false;
+  applyTransform();
+}, { passive: false });
+
+let drag = null;
+wrap.addEventListener('mousedown', (e) => {
+  if (!state.hasImage) return;
+  // 框选模式：拖出选区，不做平移
+  if (cropMode) {
+    const r = wrap.getBoundingClientRect();
+    const px = e.clientX - r.left, py = e.clientY - r.top;
+    cropSel = { x0: px, y0: py, x1: px, y1: py, active: true };
+    $('cropApply').style.display = 'none';
+    return;
+  }
+  drag = { x: e.clientX, y: e.clientY, tx: state.tx, ty: state.ty, moved: 0 };
+  wrap.classList.add('drag');
+});
+window.addEventListener('mousemove', (e) => {
+  if (cropSel && cropSel.active) {
+    const r = wrap.getBoundingClientRect();
+    cropSel.x1 = e.clientX - r.left;
+    cropSel.y1 = e.clientY - r.top;
+    const box = $('cropBox');
+    const left = Math.min(cropSel.x0, cropSel.x1), top = Math.min(cropSel.y0, cropSel.y1);
+    box.style.display = 'block';
+    box.style.left = left + 'px';
+    box.style.top = top + 'px';
+    box.style.width = Math.abs(cropSel.x1 - cropSel.x0) + 'px';
+    box.style.height = Math.abs(cropSel.y1 - cropSel.y0) + 'px';
+    return;
+  }
+  if (!drag) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  drag.moved = Math.max(drag.moved, Math.abs(dx) + Math.abs(dy));
+  if (drag.moved > 3) {
+    state.tx = drag.tx + dx;
+    state.ty = drag.ty + dy;
+    state.fitMode = false;
+    applyTransform();
+  }
+});
+window.addEventListener('mouseup', (e) => {
+  if (cropSel && cropSel.active) {
+    cropSel.active = false;
+    const w = Math.abs(cropSel.x1 - cropSel.x0), h = Math.abs(cropSel.y1 - cropSel.y0);
+    if (w < 12 || h < 12) clearCrop();
+    else $('cropApply').style.display = 'inline-block';
+    return;
+  }
+  wrap.classList.remove('drag');
+  drag = null;
+});
+
+/* 触摸：单指拖动 = 平移（框选模式下 = 框选），双指 = 缩放。
+   移动端 WebView 还会补发一套鼠标事件，所以每个分支都 preventDefault 挡掉。 */
+let tPan = null, tPinch = null, tTap = null;
+
+wrap.addEventListener('touchstart', (e) => {
+  if (!state.hasImage) return;
+  if (e.touches.length === 2) {
+    tPan = null; tTap = null;
+    const a = e.touches[0], b = e.touches[1];
+    tPinch = {
+      d0: Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY) || 1,
+      z0: state.zoom,
+      cx: (a.clientX + b.clientX) / 2,
+      cy: (a.clientY + b.clientY) / 2,
+    };
+    wrap.classList.remove('drag');
+    e.preventDefault();
+    return;
+  }
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    const r = wrap.getBoundingClientRect();
+    if (cropMode) {
+      const px = t.clientX - r.left, py = t.clientY - r.top;
+      cropSel = { x0: px, y0: py, x1: px, y1: py, active: true };
+      $('cropApply').style.display = 'none';
+    } else {
+      tPan = { x: t.clientX, y: t.clientY, tx: state.tx, ty: state.ty, moved: 0 };
+      tTap = { x: t.clientX, y: t.clientY };
+      wrap.classList.add('drag');
+    }
+    e.preventDefault();
+  }
+}, { passive: false });
+
+wrap.addEventListener('touchmove', (e) => {
+  if (tPinch) {
+    if (e.touches.length < 2) return;
+    const a = e.touches[0], b = e.touches[1];
+    const d = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY) || 1;
+    const k = Math.min(8, Math.max(0.1, tPinch.z0 * (d / tPinch.d0)));
+    const r = wrap.getBoundingClientRect();
+    const cx = tPinch.cx - r.left - r.width / 2;
+    const cy = tPinch.cy - r.top - r.height / 2;
+    const ratio = k / state.zoom;
+    state.tx = cx - (cx - state.tx) * ratio;
+    state.ty = cy - (cy - state.ty) * ratio;
+    state.zoom = k;
+    state.fitMode = false;
+    applyTransform();
+    e.preventDefault();
+    return;
+  }
+  if (cropSel && cropSel.active) {
+    const r = wrap.getBoundingClientRect();
+    const t = e.touches[0];
+    cropSel.x1 = t.clientX - r.left;
+    cropSel.y1 = t.clientY - r.top;
+    const box = $('cropBox');
+    const left = Math.min(cropSel.x0, cropSel.x1), top = Math.min(cropSel.y0, cropSel.y1);
+    box.style.display = 'block';
+    box.style.left = left + 'px';
+    box.style.top = top + 'px';
+    box.style.width = Math.abs(cropSel.x1 - cropSel.x0) + 'px';
+    box.style.height = Math.abs(cropSel.y1 - cropSel.y0) + 'px';
+    e.preventDefault();
+    return;
+  }
+  if (!tPan || e.touches.length !== 1) return;
+  const t = e.touches[0];
+  const dx = t.clientX - tPan.x, dy = t.clientY - tPan.y;
+  tPan.moved = Math.max(tPan.moved, Math.abs(dx) + Math.abs(dy));
+  if (tPan.moved > 8) {
+    state.tx = tPan.tx + dx;
+    state.ty = tPan.ty + dy;
+    state.fitMode = false;
+    applyTransform();
+  }
+  e.preventDefault();
+}, { passive: false });
+
+wrap.addEventListener('touchend', (e) => {
+  if (tPinch && e.touches.length < 2) tPinch = null;
+  if (cropSel && cropSel.active) {
+    cropSel.active = false;
+    const w = Math.abs(cropSel.x1 - cropSel.x0), h = Math.abs(cropSel.y1 - cropSel.y0);
+    if (w < 14 || h < 14) clearCrop();
+    else $('cropApply').style.display = 'inline-block';
+  }
+  wrap.classList.remove('drag');
+  tPan = null;
+  tTap = null;
+  e.preventDefault();
+}, { passive: false });
+
+/* ---------------- 直方图 ---------------- */
+function drawHist(url) {
+  const im = new Image();
+  im.onload = () => {
+    const c = $('hist'), ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const off = document.createElement('canvas');
+    off.width = 220; off.height = 140;
+    const o = off.getContext('2d');
+    o.drawImage(im, 0, 0, off.width, off.height);
+    const data = o.getImageData(0, 0, off.width, off.height).data;
+    const bins = new Array(128).fill(0);
+    for (let i = 0; i < data.length; i += 4) {
+      const l = (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) / 255;
+      bins[Math.min(127, Math.floor(l * 128))]++;
+    }
+    const max = Math.max.apply(null, bins) || 1;
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = '#1e2228';
+    for (let i = 1; i < 8; i++) {
+      const x = (i / 8) * W;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, 'rgba(230,163,60,0.85)');
+    g.addColorStop(1, 'rgba(230,163,60,0.06)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    for (let i = 0; i < 128; i++) {
+      const x = (i / 127) * W;
+      const y = H - (bins[i] / max) * (H - 4);
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, H);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(240,195,126,0.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  };
+  im.src = url;
+}
+
+/* ---------------- 状态 ---------------- */
+function setStatus(kind, text) {
+  $('dot').className = 'dot ' + (kind === 'busy' ? 'busy' : kind === 'err' ? 'err' : 'ok');
+  $('statText').textContent = text || '就绪';
+  if (kind === 'err') $('dot').style.background = '#e06b5c';
+  else if (kind !== 'busy') $('dot').style.background = '';
+}
+
+function setStats(s, ms) {
+  if (!s) return;
+  state.stats = s;
+  const f = state.stats;
+  $('statPx').textContent = '全幅 ' + $('docSize').textContent.replace(/\s/g, '');
+  const b = s.base.map((v) => v.toFixed(3)).join('  ');
+  $('statBase').textContent = '基准 ' + b;
+  $('statMs').textContent = ms + ' ms';
+
+  const pct = Math.round((s.fitConf || 0) * 100);
+  $('confBar').style.width = pct + '%';
+  $('confVal').textContent = pct + '%';
+  $('sampVal').textContent = (s.samples || 0).toLocaleString();
+
+  document.querySelectorAll('#swatch .sw').forEach((el, i) => {
+    const v = s.base[i];
+    const g = Math.round(255 * Math.pow(Math.min(1, v), 1 / 2.2));
+    el.style.background = 'rgb(' + g + ',' + Math.round(g * 0.86) + ',' + Math.round(g * 0.7) + ')';
+    el.textContent = ['R', 'G', 'B'][i] + ' ' + v.toFixed(3);
+  });
+}
+
+$('credit').textContent = '输入解码：—';
+window.addEventListener('resize', () => { if (state.fitMode) fitView(); });
+setTimeout(() => { if (state.hasImage && state.fitMode) fitView(); }, 60);
+// 桌面端由 Rust 侧在页面就绪后自己推一张演示负片过来；
+// 安卓壳没有这条链路（Java 只做消息搬运），所以由脚本主动请求一次。
+if (isAndroid) {
+  setTimeout(() => { if (!state.hasImage) send('demo'); }, 150);
+} else {
+  // 首条 progress 消息若赶在脚本就绪前丢掉，这里补一个兜底遮罩
+  setTimeout(() => { if (!state.hasImage && !busyOn) showBusy('正在载入图像…'); }, 600);
+}
+</script>
+</body>
+</html>

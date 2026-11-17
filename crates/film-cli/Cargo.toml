@@ -1,0 +1,16 @@
+[package]
+name = "film-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "M0 垂直切片命令行：合成负片、反相、标定诊断、自检"
+
+[[bin]]
+name = "film"
+path = "src/main.rs"
+
+[dependencies]
+film-core = { path = "../film-core" }
+anyhow.workspace = true
+clap.workspace = true
+image.workspace = true
